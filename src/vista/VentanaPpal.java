@@ -1,15 +1,8 @@
 package vista;
 
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,12 +11,8 @@ import javax.swing.border.EmptyBorder;
 
 public class VentanaPpal extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	public ArrayList<JButton> casillas;
 	public JLabel[][] tablero;
 	public JPanel panel_3;
 
@@ -89,92 +78,6 @@ public class VentanaPpal extends JFrame {
 		panel_3.setLayout(null);
 		panel_2.add(panel_3);
 		
-		//inicializarCasillas();
 	}
-	
-	public void inicializarCasillas() {
-		casillas = new ArrayList<JButton>();
-		
-		for (int i=0;i<9;i++) {
-			for (int j=0;j<9;j++) {
-				JButton casilla = new JButton();
-				casilla.setBounds(2 + (20 * j), 2 + (20 * i), 20, 20);
-				casilla.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t-3_20.png")));
-				casilla.setFocusPainted(false);
-				casilla.setMargin(new Insets(0, 0, 0, 0));
-				casilla.setContentAreaFilled(false);
-				casilla.setBorderPainted(false);
-				casilla.setOpaque(false);
-				casilla.addMouseListener(new casillaML(casilla));
-				casillas.add(casilla);
-				panel_3.add(casilla);
-			}
-		}
-	
-	}
-	
-	private class casillaML implements MouseListener {
-		private JButton boton;
-		
-		public casillaML(JButton boton) {
-			this.boton = boton;
-		}
 
-		@Override
-		public void mouseClicked(MouseEvent arg0) {
-			
-				
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseExited(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mousePressed(MouseEvent arg0) {
-			if (arg0.getButton() == 1)
-				boton.setVisible(false);
-			if (arg0.getButton() == 3)
-				boton.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t-4_20.png")));
-			
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-	}
-	
-//	private class casillaActionListener implements ActionListener {
-//		private JButton origen;
-//		
-//		public casillaActionListener(JButton origen) {
-//			this.origen = origen;
-//		}
-//		
-//
-//		@Override
-//		public void actionPerformed(ActionEvent e) {
-//			origen.setVisible(false);			
-//		}
-//		
-//	}
-	
-	private void inicializarTablero() {
-		calcularMinas();
-	}
-	
-	private void calcularMinas() {
-		
-	}
 }
