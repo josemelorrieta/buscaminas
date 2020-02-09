@@ -10,8 +10,10 @@ public class Principal {
 		Modelo modelo = new Modelo();
 		Controlador controlador = new Controlador(modelo, vistaJuego);
 		
+		controlador.botonInicio();
 		controlador.inicializarCasillas();
 		vistaJuego.setVisible(true);
+		controlador.inicializarJuego();
 		
 		System.out.println("Fin");
 	}
