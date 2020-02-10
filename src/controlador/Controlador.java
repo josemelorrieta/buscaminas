@@ -1,11 +1,14 @@
 package controlador;
 
+import java.awt.Component;
 import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 
 import modelo.Modelo;
 import vista.Boton;
@@ -14,6 +17,7 @@ import vista.VentanaPpal;
 public class Controlador {
 	private VentanaPpal vistaJuego;
 	private Modelo modelo;
+	private Cronometro tiempo;
 	
 	public Controlador(Modelo modelo, VentanaPpal vistaJuego) {
 		this.modelo = modelo;
@@ -53,11 +57,23 @@ public class Controlador {
 		});
 	}
 	
-	public void inicializarJuago() {
+	public void inicializarJuego() {
+		modelo.setCasillasTotales(81);
+		modelo.setMinasTotales(10);
 		modelo.setMinasMarcadas(0);
-		vistaJuego.panel_3.removeAll();
-		//inicializarCasillas();
-		vistaJuego.validate();
+		modelo.setEnJuego(false);
+		if (tiempo != null)
+			tiempo.stop();
+		
+		mostrarMinasMarcadas();
+		for (Component casilla : vistaJuego.panel_3.getComponents()) {
+			if (casilla instanceof Boton) {
+				((Boton) casilla).setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t-3_20.png")));
+				((Boton) casilla).setMarcado(false);
+				casilla.setVisible(true);
+			}
+		}
+		inicializarTablero();
 	}
 	
 	public void inicializarCasillas() {
@@ -103,6 +119,12 @@ public class Controlador {
 
 		@Override
 		public void mousePressed(MouseEvent arg0) {
+			if (modelo.isEnJuego() == false) {
+				modelo.setEnJuego(true);
+				tiempo = new Cronometro(vistaJuego.lblTiempo1, vistaJuego.lblTiempo2, vistaJuego.lblTiempo3);
+				tiempo.start();
+			}
+			
 			if (arg0.getButton() == 1 && !boton.isMarcado()) {
 				vistaJuego.btnInicio.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/face1.png")));
 				boton.setVisible(false);
@@ -130,18 +152,47 @@ public class Controlador {
 	}
 	
 	private void inicializarTablero() {
+		crearCeldas();
+		for (Component celda : vistaJuego.panel_3.getComponents()) {
+			if (celda instanceof JLabel) {
+				((JLabel) celda).setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t0_20.png")));
+			}
+		}
 		calcularMinas();
+		
+		posicionarMinas();
+	}
+	
+	public void crearCeldas() {
+		for (int i=0;i<modelo.casillasTotales;i++) {
+			JLabel celda = new JLabel();
+			int posX = (i % 9) * 20;
+			int posY = ((int)(i / 9)) * 20;
+			celda.setBounds(posX, posY, 20, 20);
+			celda.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t0_20.png")));
+			modelo.tablero.add(celda);
+			vistaJuego.panel_3.add(celda);
+		}
 	}
 	
 	private void calcularMinas() {
+		Random rand = new Random();
+		int nuevaMina;
+		modelo.minas.clear();
+		
+		while (modelo.minas.size() < modelo.minasTotales) {
+			nuevaMina = rand.nextInt(modelo.casillasTotales);
+			if (!modelo.minas.contains(nuevaMina)) {
+				modelo.minas.add(nuevaMina);
+			}
+		}
 		
 	}
 	
-	public void inicializarJuego() {
-		modelo.setMinasTotales(10);
-		modelo.setMinasMarcadas(0);
-		
-		mostrarMinasMarcadas();
+	public void posicionarMinas() {
+		for (int i=0;i<modelo.minas.size();i++) {
+			modelo.tablero.get(modelo.minas.get(i)).setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t-1_20.png")));
+		}
 	}
 	
 	public void mostrarMinasMarcadas() {
@@ -153,5 +204,9 @@ public class Controlador {
 		vistaJuego.lblMinas1.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d" + primerDigito + ".png")));
 		vistaJuego.lblMinas2.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d" + segundoDigito + ".png")));
 		vistaJuego.lblMinas3.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d" + tercerDigito + ".png")));
+	}
+	
+	public void inciarTiempo() {
+		
 	}
 }

@@ -1,10 +1,6 @@
 package vista;
 
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -18,7 +14,6 @@ public class VentanaPpal extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	public JLabel[][] tablero;
 	public JPanel panel_3;
 	public JLabel lblMinas1, lblMinas2, lblMinas3, lblTiempo1, lblTiempo2, lblTiempo3;
 	public JButton btnInicio;
