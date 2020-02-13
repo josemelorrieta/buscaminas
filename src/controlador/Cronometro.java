@@ -3,34 +3,42 @@ package controlador;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import modelo.Modelo;
 import vista.VentanaPpal;
 
 public class Cronometro implements Runnable{
 	Thread reloj;
 	Integer seg;
+	Integer cents;
 	Integer min;
 	JLabel lblDigito1, lblDigito2, lblDigito3;
 	int digito1, digito2, digito3;
-	boolean enMarcha;
+	Modelo modelo;
 	
-	public Cronometro(JLabel lblDigito1, JLabel lblDigito2, JLabel lblDigito3) {
+	public Cronometro(JLabel lblDigito1, JLabel lblDigito2, JLabel lblDigito3, Modelo modelo) {
 		this.reloj = new Thread(this);
 		this.lblDigito1 = lblDigito1;
 		this.lblDigito2 = lblDigito2;
 		this.lblDigito3 = lblDigito3;
 		this.seg = 0;
-		this.enMarcha = false;
+		this.cents = 0;
+		this.modelo = modelo;
 	}
 	
 	public void run() {
-		enMarcha = true;
-		while (enMarcha) {
+		while (modelo.enJuego) {
+			
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(100);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			seg++;
+			
+			cents ++;
+			if (cents == 10) {
+				seg++;
+				cents = 0;
+			}
 			
 			digito1 = (int) seg / 100;
 			digito2 = (int) (seg % 100) / 10;
@@ -39,10 +47,7 @@ public class Cronometro implements Runnable{
 			lblDigito2.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d" + digito2 + ".png")));
 			lblDigito3.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d" + digito3 + ".png")));
 		}
-		seg = 0;
-		lblDigito1.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d0.png")));
-		lblDigito2.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d0.png")));
-		lblDigito3.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d0.png")));
+		
 	}
 	
 	public int getSeg() {
@@ -64,8 +69,11 @@ public class Cronometro implements Runnable{
 		reloj.start();
 	}
 	
-	public void stop() {
-		enMarcha= false;
-		
+	public void inicializarReloj() {
+		seg = 0;
+		lblDigito1.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d0.png")));
+		lblDigito2.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d0.png")));
+		lblDigito3.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d0.png")));
 	}
+	
 }

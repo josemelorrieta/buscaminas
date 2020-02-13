@@ -10,9 +10,11 @@ public class Modelo {
 	public ArrayList<Boton> casillas;
 	public ArrayList<JLabel> tablero;
 	public ArrayList<Integer> minas;
+	public ArrayList<Integer> listaMinasMarcadas;
 	public int casillasTotales;
 	public int minasTotales;
 	public int minasMarcadas;
+	public int celdasLevantadas;
 	public boolean enJuego;
 	
 	public Modelo() {
@@ -20,6 +22,7 @@ public class Modelo {
 		this.casillas = new ArrayList<Boton>();
 		this.tablero = new ArrayList<JLabel>();
 		this.minas = new ArrayList<Integer>();
+		this.listaMinasMarcadas = new ArrayList<Integer>();
 	}
 	
 	public int getMinasTotales() {

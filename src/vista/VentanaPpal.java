@@ -19,8 +19,9 @@ public class VentanaPpal extends JFrame {
 	public JButton btnInicio;
 
 	public VentanaPpal() {
+		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 220, 293);
+		setBounds(100, 100, 209, 279);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -86,7 +87,7 @@ public class VentanaPpal extends JFrame {
 		
 		panel_3 = new JPanel();
 		panel_3.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		panel_3.setBounds(10, 11, 185, 185);
+		panel_3.setBounds(10, 10, 185, 185);
 		panel_3.setLayout(null);
 		panel_2.add(panel_3);
 		
