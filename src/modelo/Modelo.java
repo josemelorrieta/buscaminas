@@ -16,6 +16,8 @@ public class Modelo {
 	public int minasMarcadas;
 	public int celdasLevantadas;
 	public boolean enJuego;
+	public int filasTablero;
+	public int columnasTablero;
 	
 	public Modelo() {
 		this.enJuego = false;
@@ -53,6 +55,12 @@ public class Modelo {
 	
 	public void setCasillasTotales(int casillasTotales) {
 		this.casillasTotales = casillasTotales;
+	}
+	
+	public void calcularCasillas(int columnas, int filas) {
+		this.filasTablero = filas;
+		this.columnasTablero = columnas;
+		this.casillasTotales = filas * columnas;
 	}
 		
 }

@@ -40,12 +40,14 @@ public class Cronometro implements Runnable{
 				cents = 0;
 			}
 			
-			digito1 = (int) seg / 100;
-			digito2 = (int) (seg % 100) / 10;
-			digito3 = (int) (seg % 100) % 10;
-			lblDigito1.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d" + digito1 + ".png")));
-			lblDigito2.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d" + digito2 + ".png")));
-			lblDigito3.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d" + digito3 + ".png")));
+			if (seg < 1000) {
+				digito1 = (int) seg / 100;
+				digito2 = (int) (seg % 100) / 10;
+				digito3 = (int) (seg % 100) % 10;
+				lblDigito1.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d" + digito1 + ".png")));
+				lblDigito2.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d" + digito2 + ".png")));
+				lblDigito3.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/d" + digito3 + ".png")));
+			}
 		}
 		
 	}

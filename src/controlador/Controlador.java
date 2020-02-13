@@ -2,10 +2,8 @@ package controlador;
 
 import java.awt.Component;
 import java.awt.Insets;
-import java.awt.Window.Type;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.ImageIcon;
@@ -60,8 +58,6 @@ public class Controlador {
 	}
 	
 	public void inicializarJuego() {
-		modelo.setCasillasTotales(81);
-		modelo.setMinasTotales(10);
 		modelo.setMinasMarcadas(0);
 		modelo.celdasLevantadas = 0;
 		modelo.listaMinasMarcadas.clear();
@@ -71,6 +67,7 @@ public class Controlador {
 		tiempo.inicializarReloj();
 		
 		mostrarMinasMarcadas();
+		inicializarTablero();
 		for (Component casilla : vistaJuego.panel_3.getComponents()) {
 			if (casilla instanceof Boton) {
 				((Boton) casilla).setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t-3_20.png")));
@@ -78,15 +75,12 @@ public class Controlador {
 				casilla.setVisible(true);
 			}
 		}
-		inicializarTablero();
 		inicializado = true;
 	}
 	
-	public void inicializarCasillas() {
-		modelo.casillas = new ArrayList<Boton>();
-		
-		for (int i=0;i<9;i++) {
-			for (int j=0;j<9;j++) {
+	public void inicializarCasillas() {		
+		for (int i=0;i<modelo.filasTablero;i++) {
+			for (int j=0;j<modelo.columnasTablero;j++) {
 				Boton casilla = new Boton();
 				casilla.setBounds(2 + (20 * j), 2 + (20 * i), 20, 20);
 				casilla.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t-3_20.png")));
@@ -142,16 +136,13 @@ public class Controlador {
 					modelo.setMinasMarcadas(modelo.getMinasMarcadas() - 1);
 					modelo.tablero.get(modelo.casillas.indexOf(boton)).setText("");
 					mostrarMinasMarcadas();
-				} else if(modelo.getMinasMarcadas() < 10) {
+				} else if(modelo.getMinasMarcadas() < modelo.minasTotales) {
 					boton.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t-4_20.png")));
 					boton.setMarcado(true);
 					modelo.setMinasMarcadas(modelo.getMinasMarcadas() + 1);
 					modelo.tablero.get(modelo.casillas.indexOf(boton)).setText("X");
 					mostrarMinasMarcadas();
 					modelo.listaMinasMarcadas.add(modelo.casillas.indexOf(boton));
-//					if (comprobarFin()) {
-//						finalizarJuego("minas");
-//					}
 				}
 			}
 		}
@@ -188,8 +179,8 @@ public class Controlador {
 	public void crearCeldas() {
 		for (int i=0;i<modelo.casillasTotales;i++) {
 			JLabel celda = new JLabel();
-			int posX = (i % 9) * 20;
-			int posY = ((int)(i / 9)) * 20;
+			int posX = (i % modelo.columnasTablero) * 20;
+			int posY = ((int)(i / modelo.columnasTablero)) * 20;
 			celda.setBounds(posX, posY, 20, 20);
 			celda.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t0_20.png")));
 			modelo.tablero.add(celda);
@@ -230,36 +221,38 @@ public class Controlador {
 	
 	private int contarMinasCercanas(int pos) {
 		int minas = 0;
+		int filas = modelo.filasTablero;
+		int columnas = modelo.columnasTablero;
 		
-		if (hayMina(pos, -10) && (pos % 9) > 0 && (int)(pos / 9) > 0) {
+		if (hayMina(pos, -(columnas + 1)) && (pos % columnas) > 0 && (int)(pos / columnas) > 0) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, -9) && (int)(pos / 9) > 0) {
+		if (hayMina(pos, -(columnas)) && (int)(pos / columnas) > 0) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, -8) && (pos % 9) < 8 && (int)(pos / 9) > 0) {
+		if (hayMina(pos, -(columnas - 1)) && (pos % columnas) < (columnas - 1) && (int)(pos / columnas) > 0) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, -1)  && (pos % 9) > 0) {
+		if (hayMina(pos, -1)  && (pos % columnas) > 0) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, +1)  && (pos % 9) < 8) {
+		if (hayMina(pos, 1)  && (pos % columnas) < (columnas - 1)) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, +8)  && (pos % 9) > 0 && (int)(pos / 9) < 8) {
+		if (hayMina(pos, (columnas - 1))  && (pos % columnas) > 0 && (int)(pos / columnas) < (filas - 1)) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, +9) && (int)(pos / 9) < 8) {
+		if (hayMina(pos, columnas) && (int)(pos / columnas) < (filas - 1)) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, +10) && (pos % 9) < 8 && (int)(pos / 9) < 8) {
+		if (hayMina(pos, (columnas + 1)) && (pos % columnas) < (columnas - 1) && (int)(pos / columnas) < (filas - 1)) {
 			minas ++;
 		}
 		
@@ -309,44 +302,47 @@ public class Controlador {
 	}
 	
 	private void levantarHueco(int pos) {
-		if ((pos % 9) > 0 && (int)(pos / 9) > 0) {
-			if (modelo.casillas.get(pos - 10).isVisible() == true)
-				levantarCasilla(pos - 10);
+		int filas = modelo.filasTablero;
+		int columnas = modelo.columnasTablero;
+		
+		if ((pos % columnas) > 0 && (int)(pos / columnas) > 0) {
+			if (modelo.casillas.get(pos - (columnas + 1)).isVisible() == true)
+				levantarCasilla(pos - (columnas + 1));
 		}
 		
-		if ((int)(pos / 9) > 0) {
-			if (modelo.casillas.get(pos - 9).isVisible() == true)
-				levantarCasilla(pos - 9);
+		if ((int)(pos / columnas) > 0) {
+			if (modelo.casillas.get(pos - columnas).isVisible() == true)
+				levantarCasilla(pos - columnas);
 		}
 		
-		if ((pos % 9) < 8 && (int)(pos / 9) > 0) {
-			if (modelo.casillas.get(pos - 8).isVisible() == true)
-				levantarCasilla(pos - 8);
+		if ((pos % columnas) < (columnas - 1) && (int)(pos / columnas) > 0) {
+			if (modelo.casillas.get(pos - (columnas - 1)).isVisible() == true)
+				levantarCasilla(pos - (columnas -1));
 		}
 		
-		if ((pos % 9) > 0) {
+		if ((pos % columnas) > 0) {
 			if (modelo.casillas.get(pos - 1).isVisible() == true)
 				levantarCasilla(pos - 1);
 		}
 		
-		if ((pos % 9) < 8) {
+		if ((pos % columnas) < (columnas -1)) {
 			if (modelo.casillas.get(pos + 1).isVisible() == true)
 				levantarCasilla(pos + 1);
 		}
 		
-		if ((pos % 9) > 0 && (int)(pos / 9) < 8) {
-			if (modelo.casillas.get(pos + 8).isVisible() == true)
-				levantarCasilla(pos + 8);
+		if ((pos % columnas) > 0 && (int)(pos / columnas) < filas - 1) {
+			if (modelo.casillas.get(pos + (columnas - 1)).isVisible() == true)
+				levantarCasilla(pos + (columnas - 1));
 		}
 		
-		if ((int)(pos / 9) < 8) {
-			if (modelo.casillas.get(pos + 9).isVisible() == true)
-				levantarCasilla(pos + 9);
+		if ((int)(pos / columnas) < (filas - 1)) {
+			if (modelo.casillas.get(pos + columnas).isVisible() == true)
+				levantarCasilla(pos + columnas);
 		}
 		
-		if ((pos % 9) < 8 && (int)(pos / 9) < 8) {
-			if (modelo.casillas.get(pos + 10).isVisible() == true)
-				levantarCasilla(pos + 10);
+		if ((pos % columnas) < (columnas - 1) && (int)(pos / columnas) < (filas - 1)) {
+			if (modelo.casillas.get(pos + (columnas + 1)).isVisible() == true)
+				levantarCasilla(pos + (columnas + 1));
 		}
 		
 	}
@@ -364,18 +360,18 @@ public class Controlador {
 		finalizarJuego("pierde");
 	}
 	
-	private boolean comprobarFin() {
-		if (modelo.minasMarcadas == 10) {
-			for (int mina : modelo.listaMinasMarcadas) {
-				if (!modelo.minas.contains(mina)) {
-					return false;
-				}
-			}
-			return true;
-		} else {
-			return false;
-		}
-	}
+//	private boolean comprobarFin() {
+//		if (modelo.minasMarcadas == 10) {
+//			for (int mina : modelo.listaMinasMarcadas) {
+//				if (!modelo.minas.contains(mina)) {
+//					return false;
+//				}
+//			}
+//			return true;
+//		} else {
+//			return false;
+//		}
+//	}
 	
 	private void finalizarJuego(String caso) {
 		if (caso.equals("minas")) {
@@ -392,7 +388,7 @@ public class Controlador {
 					((Boton) casilla).setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t-4_20.png")));
 				}
 			}
-			modelo.setMinasMarcadas(10);
+			modelo.setMinasMarcadas(modelo.minasTotales);
 			mostrarMinasMarcadas();
 		}
 		
