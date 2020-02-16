@@ -1,7 +1,11 @@
 package controlador;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Random;
@@ -22,6 +26,60 @@ public class Controlador {
 	public Controlador(Modelo modelo, VentanaPpal vistaJuego) {
 		this.modelo = modelo;
 		this.vistaJuego = vistaJuego;
+	}
+	
+	public void menuJuego() {
+		vistaJuego.mntmNivel1.addActionListener(new ActionListener() {		
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				modelo.calcularCasillas(9, 9);
+				modelo.setMinasTotales(10);
+				
+				resetJuego();
+				
+				vistaJuego.mntmNivel2.setSelected(false);
+				vistaJuego.mntmNivel3.setSelected(false);
+			}
+		});
+		
+		vistaJuego.mntmNivel2.addActionListener(new ActionListener() {		
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				modelo.calcularCasillas(16, 16);
+				modelo.setMinasTotales(40);
+				
+				resetJuego();
+				
+				vistaJuego.mntmNivel1.setSelected(false);
+				vistaJuego.mntmNivel3.setSelected(false);
+			}
+		});
+		
+		vistaJuego.mntmNivel3.addActionListener(new ActionListener() {		
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				modelo.calcularCasillas(30, 16);
+				modelo.setMinasTotales(99);
+				
+				resetJuego();
+				
+				vistaJuego.mntmNivel1.setSelected(false);
+				vistaJuego.mntmNivel2.setSelected(false);
+			}
+		});
+	}
+	
+	public void resetJuego() {
+		vistaJuego.panel_3.removeAll();
+		modelo.casillas.clear();
+		modelo.tablero.clear();
+		
+		inicializarCasillas();	
+		// Poner el juego en su estado inicial
+		inicializarJuego();
+		tamanoVentana();
+		vistaJuego.revalidate();
+		vistaJuego.setLocationRelativeTo(null);
 	}
 	
 	public void botonInicio() {
@@ -55,6 +113,18 @@ public class Controlador {
 			
 			
 		});
+	}
+	
+	public void tamanoVentana() {
+		vistaJuego.setBounds(new Rectangle(new Dimension((modelo.columnasTablero * 20) + 29, (modelo.filasTablero * 20) + 122)));
+		vistaJuego.panel.setBounds(0, 0, (modelo.columnasTablero * 20) + 25, 48);
+		vistaJuego.panel_1.setBounds(8, 8, (modelo.columnasTablero * 20) + 9, 32);
+		vistaJuego.panel_2.setBounds(0, 47, (modelo.columnasTablero * 20) + 25, (modelo.filasTablero * 20) + 25);
+		vistaJuego.panel_3.setBounds(10, 10, (modelo.columnasTablero * 20) + 5, (modelo.filasTablero * 20) + 5);
+		vistaJuego.lblTiempo1.setBounds((modelo.columnasTablero * 20) - 35,4, 13, 23);
+		vistaJuego.lblTiempo2.setBounds((modelo.columnasTablero * 20) - 22,4, 13, 23);
+		vistaJuego.lblTiempo3.setBounds((modelo.columnasTablero * 20) - 9,4, 13, 23);
+		vistaJuego.btnInicio.setBounds((int)(((modelo.columnasTablero * 20) - 17) / 2), 2, 26, 26);
 	}
 	
 	public void inicializarJuego() {
@@ -162,7 +232,8 @@ public class Controlador {
 	}
 	
 	private void inicializarTablero() {
-		crearCeldas();
+		if (modelo.tablero.size() == 0)
+			crearCeldas();
 		for (Component celda : vistaJuego.panel_3.getComponents()) {
 			if (celda instanceof JLabel) {
 				((JLabel) celda).setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t0_20.png")));

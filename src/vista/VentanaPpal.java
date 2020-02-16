@@ -1,6 +1,8 @@
 package vista;
 
+import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.Rectangle;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -9,6 +11,9 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JCheckBoxMenuItem;
 
 public class VentanaPpal extends JFrame {
 
@@ -17,15 +22,32 @@ public class VentanaPpal extends JFrame {
 	public JPanel panel, panel_1, panel_2, panel_3;
 	public JLabel lblMinas1, lblMinas2, lblMinas3, lblTiempo1, lblTiempo2, lblTiempo3;
 	public JButton btnInicio;
+	public JCheckBoxMenuItem mntmNivel1, mntmNivel2, mntmNivel3;
 
 	public VentanaPpal() {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 209, 279);
+		//setBounds(0, 0, 209, 299);
+		setBounds(new Rectangle(new Dimension(209,299)));
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
+		
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		
+		JMenu mnNewMenu = new JMenu("Juego");
+		menuBar.add(mnNewMenu);
+		
+		mntmNivel1 = new JCheckBoxMenuItem("Principiante");
+		mnNewMenu.add(mntmNivel1);
+		
+		mntmNivel2 = new JCheckBoxMenuItem("Intermedio");
+		mnNewMenu.add(mntmNivel2);
+		
+		mntmNivel3 = new JCheckBoxMenuItem("Experto");
+		mnNewMenu.add(mntmNivel3);
 		
 		panel = new JPanel();
 		panel.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
