@@ -190,6 +190,12 @@ public class Controlador {
 		@Override
 		public void mousePressed(MouseEvent arg0) {
 			if (!modelo.isEnJuego() && inicializado) {
+				calcularMinas(modelo.casillas.indexOf(boton));
+				
+				posicionarMinas();
+				
+				calcularCeldas();
+				
 				modelo.setEnJuego(true);
 				tiempo.start();
 			}
@@ -223,9 +229,9 @@ public class Controlador {
 				vistaJuego.btnInicio.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/face0.png")));
 				if (!modelo.tablero.get(modelo.casillas.indexOf(boton)).getText().equals("X"))
 					levantarCasilla(modelo.casillas.indexOf(boton));
-					if (modelo.celdasLevantadas == modelo.casillasTotales - modelo.minasTotales) {
-						finalizarJuego("casillas");
-					}
+				if (modelo.celdasLevantadas == modelo.casillasTotales - modelo.minasTotales) {
+					finalizarJuego("casillas");
+				}
 			}
 		}
 		
@@ -240,11 +246,6 @@ public class Controlador {
 				((JLabel) celda).setText("");
 			}
 		}
-		calcularMinas();
-		
-		posicionarMinas();
-		
-		calcularCeldas();
 	}
 	
 	public void crearCeldas() {
@@ -259,14 +260,17 @@ public class Controlador {
 		}
 	}
 	
-	private void calcularMinas() {
+	private void calcularMinas(int pos) {
 		Random rand = new Random();
 		int nuevaMina;
+		int col = modelo.columnasTablero;
 		modelo.minas.clear();
 		
 		while (modelo.minas.size() < modelo.minasTotales) {
 			nuevaMina = rand.nextInt(modelo.casillasTotales);
-			if (!modelo.minas.contains(nuevaMina)) {
+			if (!modelo.minas.contains(nuevaMina) && nuevaMina != pos && nuevaMina != pos - (col + 1) && nuevaMina != pos - col
+					&& nuevaMina != pos - (col - 1) && nuevaMina != pos - 1 && nuevaMina != pos + 1 && nuevaMina != pos + (col - 1)
+					&& nuevaMina != pos + col && nuevaMina != pos + (col + 1)) {
 				modelo.minas.add(nuevaMina);
 			}
 		}		
