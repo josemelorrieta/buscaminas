@@ -23,6 +23,9 @@ public class Controlador {
 	private Cronometro tiempo;
 	private boolean inicializado;
 	
+	final int MARGEN_HOR = 39;
+	final int MARGEN_VER = 132; 
+	
 	public Controlador(Modelo modelo, VentanaPpal vistaJuego) {
 		this.modelo = modelo;
 		this.vistaJuego = vistaJuego;
@@ -116,7 +119,7 @@ public class Controlador {
 	}
 	
 	public void tamanoVentana() {
-		vistaJuego.setBounds(new Rectangle(new Dimension((modelo.columnasTablero * 20) + 29, (modelo.filasTablero * 20) + 122)));
+		vistaJuego.setBounds(new Rectangle(new Dimension((modelo.columnasTablero * 20) + MARGEN_HOR, (modelo.filasTablero * 20) + MARGEN_VER)));
 		vistaJuego.panel.setBounds(0, 0, (modelo.columnasTablero * 20) + 25, 48);
 		vistaJuego.panel_1.setBounds(8, 8, (modelo.columnasTablero * 20) + 9, 32);
 		vistaJuego.panel_2.setBounds(0, 47, (modelo.columnasTablero * 20) + 25, (modelo.filasTablero * 20) + 25);
@@ -189,7 +192,7 @@ public class Controlador {
 
 		@Override
 		public void mousePressed(MouseEvent arg0) {
-			if (!modelo.isEnJuego() && inicializado) {
+			if (!modelo.isEnJuego() && inicializado && arg0.getButton() != 3 && !modelo.isEnJuego()) {
 				calcularMinas(modelo.casillas.indexOf(boton));
 				
 				posicionarMinas();
@@ -200,17 +203,17 @@ public class Controlador {
 				tiempo.start();
 			}
 			
-			if (arg0.getButton() == 1 && !boton.isMarcado()) {
+			if (arg0.getButton() == 1 && !boton.isMarcado() && tiempo.isAlive()) {
 				if (modelo.isEnJuego()) {
 					vistaJuego.btnInicio.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/face1.png")));
 				}
 			}
-			if (arg0.getButton() == 3) {
+			if (arg0.getButton() == 3 && modelo.isEnJuego()) {
 				if (boton.isMarcado()) {
 					boton.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t-3_20.png")));
 					boton.setMarcado(false);
 					modelo.setMinasMarcadas(modelo.getMinasMarcadas() - 1);
-					modelo.tablero.get(modelo.casillas.indexOf(boton)).setText("");
+					modelo.tablero.get(modelo.casillas.indexOf(boton)).setText("M");
 					mostrarMinasMarcadas();
 				} else if(modelo.getMinasMarcadas() < modelo.minasTotales) {
 					boton.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/t-4_20.png")));
@@ -227,8 +230,9 @@ public class Controlador {
 		public void mouseReleased(MouseEvent arg0) {
 			if (arg0.getButton() == 1 && modelo.isEnJuego()) {
 				vistaJuego.btnInicio.setIcon(new ImageIcon(VentanaPpal.class.getResource("/images/face0.png")));
-				if (!modelo.tablero.get(modelo.casillas.indexOf(boton)).getText().equals("X"))
+				if (!modelo.tablero.get(modelo.casillas.indexOf(boton)).getText().equals("X")) {
 					levantarCasilla(modelo.casillas.indexOf(boton));
+				}
 				if (modelo.celdasLevantadas == modelo.casillasTotales - modelo.minasTotales) {
 					finalizarJuego("casillas");
 				}
@@ -346,6 +350,58 @@ public class Controlador {
 		
 	}
 	
+	private int contarMarcadasCercanas(int pos) {
+		int minas = 0;
+		int filas = modelo.filasTablero;
+		int columnas = modelo.columnasTablero;
+		
+		if (estaMarcada(pos, -(columnas + 1)) && (pos % columnas) > 0 && (int)(pos / columnas) > 0) {
+			minas ++;
+		}
+		
+		if (estaMarcada(pos, -(columnas)) && (int)(pos / columnas) > 0) {
+			minas ++;
+		}
+		
+		if (estaMarcada(pos, -(columnas - 1)) && (pos % columnas) < (columnas - 1) && (int)(pos / columnas) > 0) {
+			minas ++;
+		}
+		
+		if (estaMarcada(pos, -1)  && (pos % columnas) > 0) {
+			minas ++;
+		}
+		
+		if (estaMarcada(pos, 1)  && (pos % columnas) < (columnas - 1)) {
+			minas ++;
+		}
+		
+		if (estaMarcada(pos, (columnas - 1))  && (pos % columnas) > 0 && (int)(pos / columnas) < (filas - 1)) {
+			minas ++;
+		}
+		
+		if (estaMarcada(pos, columnas) && (int)(pos / columnas) < (filas - 1)) {
+			minas ++;
+		}
+		
+		if (estaMarcada(pos, (columnas + 1)) && (pos % columnas) < (columnas - 1) && (int)(pos / columnas) < (filas - 1)) {
+			minas ++;
+		}
+		
+		return minas;
+	}
+	
+	private boolean estaMarcada (int pos, int offset) {
+		try {
+			if (modelo.tablero.get(pos + offset).getText().equals("X"))
+				return true;
+			else
+				return false;
+		} catch (Exception e) {
+			return false;
+		}
+		
+	}
+	
 	private void mostrarMinasMarcadas() {
 		int minas = modelo.getMinasTotales() -  modelo.getMinasMarcadas();
 		int primerDigito = (int) minas / 100;
@@ -358,6 +414,8 @@ public class Controlador {
 	}
 	
 	private void levantarCasilla(int posCasilla) {
+		int minasCercanas = 0;
+		
 		modelo.casillas.get(posCasilla).setVisible(false);
 		modelo.celdasLevantadas ++;
 
@@ -365,6 +423,12 @@ public class Controlador {
 			minaExplota(posCasilla);
 		} else if (modelo.tablero.get(posCasilla).getText().equals("0")) {
 			levantarHueco(posCasilla);
+		} else {
+			//Levantar alredor si ya tiene todas las minas marcadas
+			minasCercanas = contarMarcadasCercanas(posCasilla);
+			if (modelo.tablero.get(posCasilla).getText().equals(Integer.toString(minasCercanas))) {
+				LevantarCubierta(posCasilla);
+			}
 		}		
 	}
 	
@@ -422,6 +486,51 @@ public class Controlador {
 		
 	}
 	
+	private void LevantarCubierta(int pos) {
+		int filas = modelo.filasTablero;
+		int columnas = modelo.columnasTablero;
+		
+		if ((pos % columnas) > 0 && (int)(pos / columnas) > 0) {
+			if (modelo.casillas.get(pos - (columnas + 1)).isVisible() && !modelo.tablero.get(pos - (columnas + 1)).getText().equals("X"))
+				levantarCasilla(pos - (columnas + 1));
+		}
+		
+		if ((int)(pos / columnas) > 0) {
+			if (modelo.casillas.get(pos - columnas).isVisible() && !modelo.tablero.get(pos - columnas).getText().equals("X"))
+				levantarCasilla(pos - columnas);
+		}
+		
+		if ((pos % columnas) < (columnas - 1) && (int)(pos / columnas) > 0) {
+			if (modelo.casillas.get(pos - (columnas - 1)).isVisible() && !modelo.tablero.get(pos - (columnas - 1)).getText().equals("X"))
+				levantarCasilla(pos - (columnas -1));
+		}
+		
+		if ((pos % columnas) > 0) {
+			if (modelo.casillas.get(pos - 1).isVisible() && !modelo.tablero.get(pos - 1).getText().equals("X"))
+				levantarCasilla(pos - 1);
+		}
+		
+		if ((pos % columnas) < (columnas -1)) {
+			if (modelo.casillas.get(pos + 1).isVisible() && !modelo.tablero.get(pos + 1).getText().equals("X"))
+				levantarCasilla(pos + 1);
+		}
+		
+		if ((pos % columnas) > 0 && (int)(pos / columnas) < filas - 1) {
+			if (modelo.casillas.get(pos + (columnas - 1)).isVisible() && !modelo.tablero.get(pos + (columnas - 1)).getText().equals("X"))
+				levantarCasilla(pos + (columnas - 1));
+		}
+		
+		if ((int)(pos / columnas) < (filas - 1)) {
+			if (modelo.casillas.get(pos + columnas).isVisible() && !modelo.tablero.get(pos + columnas).getText().equals("X"))
+				levantarCasilla(pos + columnas);
+		}
+		
+		if ((pos % columnas) < (columnas - 1) && (int)(pos / columnas) < (filas - 1)) {
+			if (modelo.casillas.get(pos + (columnas + 1)).isVisible() && !modelo.tablero.get(pos + (columnas + 1)).getText().equals("X"))
+				levantarCasilla(pos + (columnas + 1));
+		}
+	}
+	
 	private void levantarTodasLasMinas() {
 		for (int i=0;i<modelo.casillasTotales;i++) {
 			if (modelo.minas.contains(i) && !modelo.tablero.get(i).getText().equals("X")) {
@@ -468,6 +577,7 @@ public class Controlador {
 		}
 		
 		modelo.enJuego = false;
+		inicializado = false;
 		if (!caso.equals("pierde"))
 			vistaJuego.btnInicio.setIcon(new ImageIcon (VentanaPpal.class.getResource("/images/face3.png")));
 	}
