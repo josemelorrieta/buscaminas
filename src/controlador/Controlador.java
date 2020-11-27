@@ -291,108 +291,56 @@ public class Controlador {
 		int minas;
 		for (int i=0;i<modelo.tablero.size();i++) {
 			if (!modelo.tablero.get(i).getText().equals("M")) {
-				 minas = contarMinasCercanas(i);
+				 minas = contarMinasCercanas(i, "M");
 				 modelo.tablero.get(i).setIcon(new ImageIcon (VentanaPpal.class.getResource("/images/t" + minas + "_20.png")));
 				 modelo.tablero.get(i).setText(minas + "");
 			}
 		}
 	}
 	
-	private int contarMinasCercanas(int pos) {
+	private int contarMinasCercanas(int pos, String tipo) {
 		int minas = 0;
 		int filas = modelo.filasTablero;
 		int columnas = modelo.columnasTablero;
 		
-		if (hayMina(pos, -(columnas + 1)) && (pos % columnas) > 0 && (int)(pos / columnas) > 0) {
+		if (hayMina(pos, -(columnas + 1), tipo) && (pos % columnas) > 0 && (int)(pos / columnas) > 0) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, -(columnas)) && (int)(pos / columnas) > 0) {
+		if (hayMina(pos, -(columnas), tipo) && (int)(pos / columnas) > 0) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, -(columnas - 1)) && (pos % columnas) < (columnas - 1) && (int)(pos / columnas) > 0) {
+		if (hayMina(pos, -(columnas - 1), tipo) && (pos % columnas) < (columnas - 1) && (int)(pos / columnas) > 0) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, -1)  && (pos % columnas) > 0) {
+		if (hayMina(pos, -1, tipo)  && (pos % columnas) > 0) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, 1)  && (pos % columnas) < (columnas - 1)) {
+		if (hayMina(pos, 1, tipo)  && (pos % columnas) < (columnas - 1)) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, (columnas - 1))  && (pos % columnas) > 0 && (int)(pos / columnas) < (filas - 1)) {
+		if (hayMina(pos, (columnas - 1), tipo)  && (pos % columnas) > 0 && (int)(pos / columnas) < (filas - 1)) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, columnas) && (int)(pos / columnas) < (filas - 1)) {
+		if (hayMina(pos, columnas, tipo) && (int)(pos / columnas) < (filas - 1)) {
 			minas ++;
 		}
 		
-		if (hayMina(pos, (columnas + 1)) && (pos % columnas) < (columnas - 1) && (int)(pos / columnas) < (filas - 1)) {
+		if (hayMina(pos, (columnas + 1), tipo) && (pos % columnas) < (columnas - 1) && (int)(pos / columnas) < (filas - 1)) {
 			minas ++;
 		}
 		
 		return minas;
 	}
 	
-	private boolean hayMina (int pos, int offset) {
+	private boolean hayMina (int pos, int offset, String tipo) {
 		try {
-			if (modelo.tablero.get(pos + offset).getText().equals("M"))
-				return true;
-			else
-				return false;
-		} catch (Exception e) {
-			return false;
-		}
-		
-	}
-	
-	private int contarMarcadasCercanas(int pos) {
-		int minas = 0;
-		int filas = modelo.filasTablero;
-		int columnas = modelo.columnasTablero;
-		
-		if (estaMarcada(pos, -(columnas + 1)) && (pos % columnas) > 0 && (int)(pos / columnas) > 0) {
-			minas ++;
-		}
-		
-		if (estaMarcada(pos, -(columnas)) && (int)(pos / columnas) > 0) {
-			minas ++;
-		}
-		
-		if (estaMarcada(pos, -(columnas - 1)) && (pos % columnas) < (columnas - 1) && (int)(pos / columnas) > 0) {
-			minas ++;
-		}
-		
-		if (estaMarcada(pos, -1)  && (pos % columnas) > 0) {
-			minas ++;
-		}
-		
-		if (estaMarcada(pos, 1)  && (pos % columnas) < (columnas - 1)) {
-			minas ++;
-		}
-		
-		if (estaMarcada(pos, (columnas - 1))  && (pos % columnas) > 0 && (int)(pos / columnas) < (filas - 1)) {
-			minas ++;
-		}
-		
-		if (estaMarcada(pos, columnas) && (int)(pos / columnas) < (filas - 1)) {
-			minas ++;
-		}
-		
-		if (estaMarcada(pos, (columnas + 1)) && (pos % columnas) < (columnas - 1) && (int)(pos / columnas) < (filas - 1)) {
-			minas ++;
-		}
-		
-		return minas;
-	}
-	
-	private boolean estaMarcada (int pos, int offset) {
-		try {
-			if (modelo.tablero.get(pos + offset).getText().equals("X"))
+			if (modelo.tablero.get(pos + offset).getText().equals(tipo))
 				return true;
 			else
 				return false;
@@ -425,7 +373,7 @@ public class Controlador {
 			levantarHueco(posCasilla);
 		} else {
 			//Levantar alredor si ya tiene todas las minas marcadas
-			minasCercanas = contarMarcadasCercanas(posCasilla);
+			minasCercanas = contarMinasCercanas(posCasilla, "X");
 			if (modelo.tablero.get(posCasilla).getText().equals(Integer.toString(minasCercanas))) {
 				LevantarCubierta(posCasilla);
 			}
@@ -445,42 +393,42 @@ public class Controlador {
 		int columnas = modelo.columnasTablero;
 		
 		if ((pos % columnas) > 0 && (int)(pos / columnas) > 0) {
-			if (modelo.casillas.get(pos - (columnas + 1)).isVisible() == true)
+			if (modelo.casillas.get(pos - (columnas + 1)).isVisible())
 				levantarCasilla(pos - (columnas + 1));
 		}
 		
 		if ((int)(pos / columnas) > 0) {
-			if (modelo.casillas.get(pos - columnas).isVisible() == true)
+			if (modelo.casillas.get(pos - columnas).isVisible())
 				levantarCasilla(pos - columnas);
 		}
 		
 		if ((pos % columnas) < (columnas - 1) && (int)(pos / columnas) > 0) {
-			if (modelo.casillas.get(pos - (columnas - 1)).isVisible() == true)
+			if (modelo.casillas.get(pos - (columnas - 1)).isVisible())
 				levantarCasilla(pos - (columnas -1));
 		}
 		
 		if ((pos % columnas) > 0) {
-			if (modelo.casillas.get(pos - 1).isVisible() == true)
+			if (modelo.casillas.get(pos - 1).isVisible())
 				levantarCasilla(pos - 1);
 		}
 		
 		if ((pos % columnas) < (columnas -1)) {
-			if (modelo.casillas.get(pos + 1).isVisible() == true)
+			if (modelo.casillas.get(pos + 1).isVisible())
 				levantarCasilla(pos + 1);
 		}
 		
 		if ((pos % columnas) > 0 && (int)(pos / columnas) < filas - 1) {
-			if (modelo.casillas.get(pos + (columnas - 1)).isVisible() == true)
+			if (modelo.casillas.get(pos + (columnas - 1)).isVisible())
 				levantarCasilla(pos + (columnas - 1));
 		}
 		
 		if ((int)(pos / columnas) < (filas - 1)) {
-			if (modelo.casillas.get(pos + columnas).isVisible() == true)
+			if (modelo.casillas.get(pos + columnas).isVisible())
 				levantarCasilla(pos + columnas);
 		}
 		
 		if ((pos % columnas) < (columnas - 1) && (int)(pos / columnas) < (filas - 1)) {
-			if (modelo.casillas.get(pos + (columnas + 1)).isVisible() == true)
+			if (modelo.casillas.get(pos + (columnas + 1)).isVisible())
 				levantarCasilla(pos + (columnas + 1));
 		}
 		
